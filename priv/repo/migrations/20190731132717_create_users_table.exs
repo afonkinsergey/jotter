@@ -14,10 +14,10 @@ defmodule Jotter.Repo.Migrations.CreateUsersTable do
       add :sex, :string
       add :city, :string
     end
+
     # проверка уникальности логина
     create unique_index(:users, [:login])
   end
-
 
   #  когда откатывается миграция выполняется down функция
   def down do

@@ -1,4 +1,5 @@
 defmodule Jotter.User do
+
   use Ecto.Schema
   require Ecto.Query # позовём эту штуку чтобы можно было выполнять её макросы
   alias Ecto.Changeset
@@ -45,6 +46,17 @@ defmodule Jotter.User do
     |> Changeset.unique_constraint(:login)
   end
 
+
+  # сверяем переданную пару логин-пароль
+  def check_auth(login, password) do
+    with %Jotter.User{password: ^password} <- Jotter.Repo.get_by(Jotter.User, login: login) do
+      {:ok}
+    else
+      _ -> {:error, "login or password do not mach"}
+    end
+  end
+
+  # запрашиваем первую запись из базы
   def get_first_record do
     Jotter.Repo.one(Ecto.Query.from u in __MODULE__, order_by: [asc: u.id], limit: 1)
   end
