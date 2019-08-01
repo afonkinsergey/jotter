@@ -52,7 +52,7 @@ defmodule Jotter.User do
     with %Jotter.User{password: ^password} <- Jotter.Repo.get_by(Jotter.User, login: login) do
       {:ok}
     else
-      _ -> {:error, "login or password do not mach"}
+      _ -> {:error, "login or password do not match"}
     end
   end
 

@@ -23,5 +23,4 @@ defmodule Jotter.Repo.Migrations.CreateUsersTable do
   def down do
     drop table(:users) # функция противоположная up, то есть удаляем таблицу
   end
-
 end
