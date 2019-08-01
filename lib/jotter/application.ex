@@ -7,6 +7,7 @@ defmodule Jotter.Application do
 
   def start(_type, _args) do
     children = [
+      Jotter.Repo,
       # Starts a worker by calling: Jotter.Worker.start_link(arg)
       # {Jotter.Worker, arg}
     ]
