@@ -13,6 +13,11 @@ defmodule Jotter.User do
     field :age, :integer
     field :sex, :string
     field :city, :string
+
+    # как бы ссылка к .Avatar где у нас есть belongs_to
+    has_one :avatar, Jotter.User.Avatar
+    has_many :posts, Jotter.User.Post
+    has_many :pictures, Jotter.User.Picture
   end
 
   # ниже специальная функция, которая делает проверку перед тем как передать запись в бд
