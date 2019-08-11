@@ -17,6 +17,7 @@ defmodule Jotter.User do
     has_one :avatar, Jotter.User.Avatar
     has_many :posts, Jotter.User.Post
     has_many :pictures, Jotter.User.Picture
+    many_to_many :users, Jotter.User, join_through: "friends_friends"
   end
 
   # ниже специальная функция, которая делает проверку перед тем как передать запись в бд
