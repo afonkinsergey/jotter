@@ -1,5 +1,4 @@
 defmodule Jotter.User do
-
   use Ecto.Schema
   require Ecto.Query # позовём эту штуку чтобы можно было выполнять её макросы
   alias Ecto.Changeset

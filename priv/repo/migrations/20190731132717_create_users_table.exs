@@ -1,5 +1,4 @@
 defmodule Jotter.Repo.Migrations.CreateUsersTable do
-
   use Ecto.Migration
 
   #  когда происходит миграция выполняется up функция

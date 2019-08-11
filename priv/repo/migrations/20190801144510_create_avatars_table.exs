@@ -1,5 +1,4 @@
 defmodule Jotter.Repo.Migrations.CreateAvatarsTable do
-
   use Ecto.Migration
 
   def change do

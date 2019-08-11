@@ -1,5 +1,4 @@
 defmodule Jotter.User.Avatar do
-
   use Ecto.Schema
   alias Jotter.{Repo, User}
 
@@ -11,10 +10,22 @@ defmodule Jotter.User.Avatar do
     belongs_to :user, Jotter.User
   end
 
+  # добавление аватары
+  # def add_avatar(user_id, avatar_link) do
+  #   %User{id: user_id}
+  #   |> Ecto.build_assoc(:avatar, %{image_url: avatar_link})
+  #   |> Repo.insert()
+  # end
+
+  # добавление аватары с проверкой существования юзера
   def add_avatar(user_id, avatar_link) do
-    %User{id: user_id}
-    |> Ecto.build_assoc(:avatar, %{image_url: avatar_link})
-    |> Repo.insert()
+    with %Jotter.User{id: ^user_id} <- Jotter.Repo.get(Jotter.User, id: user_id) do
+      %User{id: user_id}
+      |> Ecto.build_assoc(:avatar, %{image_url: avatar_link})
+      |> Repo.insert()
+    else
+      :nil -> {:error, "User id not found"}
+    end
   end
 
 end
