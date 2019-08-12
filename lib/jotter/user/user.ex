@@ -17,7 +17,7 @@ defmodule Jotter.User do
     has_one :avatar, Jotter.User.Avatar
     has_many :posts, Jotter.User.Post
     has_many :pictures, Jotter.User.Picture
-    many_to_many :users, Jotter.User, join_through: "friends_friends"
+    many_to_many :users, Jotter.User, join_through: "users_friends"
   end
 
   # ниже специальная функция, которая делает проверку перед тем как передать запись в бд
@@ -72,4 +72,20 @@ defmodule Jotter.User do
     |> Ecto.Query.last() # последняя запись
     |> Jotter.Repo.one() # обращение к репе
   end
+
+  # def send_friend_request(sender, receiver) do
+  #   # нужно сделать проверку не только sender, но и receiver, но как?
+  #   with %Jotter.User{id: ^sender} <- Jotter.Repo.get_by(Jotter.User, id: sender)
+  #   && %Jotter.User{id: ^receiver} <- Jotter.Repo.get_by(Jotter.User, id: receiver) do
+  #     %User{id: user_id}
+  #       |> Jotter.Repo.get()
+  #   else
+  #     :nil -> {:error, "User id not found"}
+  #   end
+  # end
+
+  def accept_friend_request do
+
+  end
+
 end

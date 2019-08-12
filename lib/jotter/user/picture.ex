@@ -19,7 +19,7 @@ defmodule Jotter.User.Picture do
 
 # добавление картинки с проверкой существования юзера
   def add_picture(user_id, image_link, image_description) do
-    with %Jotter.User{id: ^user_id} <- Jotter.Repo.get(Jotter.User, id: user_id) do
+    with %User{id: ^user_id} <- Repo.get(User, user_id) do
       %User{id: user_id}
       |> Ecto.build_assoc(:pictures, %{image_url: image_link, description: image_description})
       |> Repo.insert()

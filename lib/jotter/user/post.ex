@@ -18,7 +18,7 @@ defmodule Jotter.User.Post do
 
   # добавление поста с проверкой существования юзера
   def new_post(user_id, text) do
-    with %Jotter.User{id: ^user_id} <- Jotter.Repo.get(Jotter.User, id: user_id) do
+    with %User{id: ^user_id} <- Repo.get(Jotter.User, user_id) do
       %User{id: user_id}
       |> Ecto.build_assoc(:posts, %{text: text})
       |> Repo.insert()

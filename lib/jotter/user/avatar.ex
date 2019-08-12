@@ -19,7 +19,7 @@ defmodule Jotter.User.Avatar do
 
   # добавление аватары с проверкой существования юзера
   def add_avatar(user_id, avatar_link) do
-    with %Jotter.User{id: ^user_id} <- Jotter.Repo.get(Jotter.User, id: user_id) do
+    with %User{id: ^user_id} <- Repo.get(User, user_id) do
       %User{id: user_id}
       |> Ecto.build_assoc(:avatar, %{image_url: avatar_link})
       |> Repo.insert()
