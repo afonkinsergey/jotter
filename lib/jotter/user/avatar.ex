@@ -27,5 +27,4 @@ defmodule Jotter.User.Avatar do
       :nil -> {:error, "User id not found"}
     end
   end
-
 end

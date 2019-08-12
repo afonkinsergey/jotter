@@ -26,5 +26,4 @@ defmodule Jotter.User.Post do
       :nil -> {:error, "User id not found"}
     end
   end
-
 end

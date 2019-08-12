@@ -78,14 +78,12 @@ defmodule Jotter.User do
   #   with %Jotter.User{id: ^sender} <- Jotter.Repo.get_by(Jotter.User, id: sender)
   #   && %Jotter.User{id: ^receiver} <- Jotter.Repo.get_by(Jotter.User, id: receiver) do
   #     %User{id: user_id}
-  #       |> Jotter.Repo.get()
   #   else
   #     :nil -> {:error, "User id not found"}
   #   end
   # end
 
-  def accept_friend_request do
+  # def accept_friend_request do
 
-  end
-
+  # end
 end
