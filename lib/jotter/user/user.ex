@@ -2,6 +2,7 @@ defmodule Jotter.User do
   use Ecto.Schema
   require Ecto.Query # позовём эту штуку чтобы можно было выполнять её макросы
   alias Ecto.Changeset
+  alias Jotter.{Repo, User}
 
   schema "users" do
     field :login, :string
@@ -14,10 +15,12 @@ defmodule Jotter.User do
     field :city, :string
 
     # как бы ссылка к .Avatar где у нас есть belongs_to
-    has_one :avatar, Jotter.User.Avatar
-    has_many :posts, Jotter.User.Post
-    has_many :pictures, Jotter.User.Picture
-    many_to_many :users, Jotter.User, join_through: "users_friends"
+    has_one :avatar, User.Avatar
+    has_many :posts, User.Post
+    has_many :pictures, User.Picture
+    # has_many :users_friendship, User.Friendship #, join_keys: [user_id: :id, friend_id: :id]
+    has_many :request_users, User.Friendship, foreign_key: :user_id, where: [status: "request"]
+    has_many :who_request_me, User.Friendship, foreign_key: :friend_id, where: [status: "request"]
   end
 
   # ниже специальная функция, которая делает проверку перед тем как передать запись в бд
@@ -51,10 +54,9 @@ defmodule Jotter.User do
     |> Changeset.unique_constraint(:login)
   end
 
-
   # сверяем переданную пару логин-пароль
   def check_auth(login, password) do
-    with %Jotter.User{password: ^password} <- Jotter.Repo.get_by(Jotter.User, login: login) do
+    with %User{password: ^password} <- Repo.get_by(User, login: login) do
       {:ok}
     else
       _ -> {:error, "login or password do not match"}
@@ -63,27 +65,47 @@ defmodule Jotter.User do
 
   # запрашиваем первую запись из базы
   def get_first_record do
-    Jotter.Repo.one(Ecto.Query.from u in __MODULE__, order_by: [asc: u.id], limit: 1)
+    Repo.one(Ecto.Query.from u in __MODULE__, order_by: [asc: u.id], limit: 1)
   end
 
   # для последней записи, как обычно записывается (не развёрнуто)
   def get_last_record do
     __MODULE__ # зовём модуль
     |> Ecto.Query.last() # последняя запись
-    |> Jotter.Repo.one() # обращение к репе
+    |> Repo.one() # обращение к репе
   end
 
-  # def send_friend_request(sender, receiver) do
-  #   # нужно сделать проверку не только sender, но и receiver, но как?
-  #   with %Jotter.User{id: ^sender} <- Jotter.Repo.get_by(Jotter.User, id: sender)
-  #   && %Jotter.User{id: ^receiver} <- Jotter.Repo.get_by(Jotter.User, id: receiver) do
-  #     %User{id: user_id}
-  #   else
-  #     :nil -> {:error, "User id not found"}
-  #   end
-  # end
+  def send_friend_request(user_id, friend_id) when user_id != friend_id do # правильно ли так делать?
+    with %User{id: ^user_id} = user <- Repo.get(User, user_id),
+    %User{id: ^friend_id} <- Repo.get(User, friend_id) do
+      user
+      |> Ecto.build_assoc(:request_users, friend_id: friend_id)
+      |> Repo.insert()
+    else
+      :nil -> {:error, "User id not found"}
+    end
+  end
 
-  # def accept_friend_request do
+  def who_request_me(user_id) do
+    User
+    |> Repo.get(user_id)
+    |> Repo.preload(:who_request_me)
+  end
 
-  # end
+  def accept_user_request(user_id, friend_id) do
+    User.Friendship
+    |> Ecto.Query.where(user_id: ^user_id, friend_id: ^friend_id) #|> IO.inspect()
+    |> Repo.one()
+    |> Ecto.Changeset.change() |> IO.inspect()
+    |> Ecto.Changeset.put_change(:status, "friend")
+    |> Repo.update()
+  end
+
+  def reject_user_request(user_id, friend_id) do
+    User.Friendship
+    |> Ecto.Query.where(user_id: ^user_id, friend_id: ^friend_id) #|> IO.inspect()
+    |> Repo.one()
+    |> Ecto.Changeset.change()
+    |> Repo.delete()
+  end
 end
