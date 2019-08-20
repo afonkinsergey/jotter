@@ -1,10 +1,8 @@
 defmodule Jotter.User.Friendship do
   use Ecto.Schema
-  alias Jotter.{Repo, User}
+  alias Jotter.User
 
   schema "users_friendship" do
-    # field :user_id, :integer
-    # field :friend_id, :integer
     field :status, :string
 
     belongs_to :user, User, foreign_key: :user_id
