@@ -37,6 +37,7 @@ defmodule Jotter.User do
       :sex,
       :city
       ])
+      # можно так записать (params, ~w[login password .....]a)
 
     # определяем обязательное заполнение полей
     |> Changeset.validate_required([:login, :password, :email, :name, :surname])
