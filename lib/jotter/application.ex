@@ -14,7 +14,7 @@ defmodule Jotter.Application do
       JotterWeb.Endpoint,
       {Absinthe.Subscription, [JotterWeb.Endpoint]},
       # Starts a worker by calling: Jotter.Worker.start_link(arg)
-      # {Jotter.Worker, arg},
+      # {Jotter.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

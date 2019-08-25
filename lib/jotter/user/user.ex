@@ -1,6 +1,8 @@
 defmodule Jotter.User do
   use Ecto.Schema
+
   require Ecto.Query # позовём эту штуку чтобы можно было выполнять её макросы
+
   alias Ecto.Changeset
   alias Jotter.{Repo, User}
 
@@ -56,132 +58,73 @@ defmodule Jotter.User do
     |> Changeset.unique_constraint(:login)
   end
 
+  # создаём нового юзера
+  def create_user(%{} = params) do
+    with {:ok, _} = new_user <- %User{} |> User.changeset(params) |> Repo.insert() do
+      new_user
+    else
+      _ -> {:error, "Can not create user"}
+    end
+  end
+
+  def create_user(_), do: {:error, "Can not create user"}
+
+  # обновляем какие-либо параметры юзера
+  def update_user(%{login: login, password: password} = params) do
+    with  user when not is_nil(user)  <- Repo.get_by(User, login: login, password: password),
+          %{valid?: true} = changeset <- User.changeset(user, params),
+          {:ok, updated_user}         <- Repo.update(changeset) do
+      {:ok, updated_user}
+    else
+      _ -> {:error, "Can not update user"}
+    end
+  end
+
+  def update_user(_), do: {:error, "Can not update user"}
+
   # сверяем переданную пару логин-пароль
-  def check_auth(login, password) do
-    with %User{password: ^password} <- Repo.get_by(User, login: login) do
-      {:ok}
-    else
-      _ -> {:error, "login or password do not match"}
-    end
-  end
-
-  # Делаем запрос на добавление в друзья
-  def send_friend_request(user_id, friend_id) when user_id != friend_id do
-    with %User{id: ^user_id} = user <- Repo.get(User, user_id),
-    %User{id: ^friend_id} <- Repo.get(User, friend_id) do
+  def check_auth_user(%{login: login, password: password}) do
+    with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
       user
-      |> Ecto.build_assoc(:request_users, friend_id: friend_id)
-      |> Repo.insert()
     else
-      nil -> {:error, "User id #{user_id} or friend id #{friend_id} not found"}
+      _ -> {:error, "Login or password do not match"}
     end
   end
 
-  # Узнаём кто мне отправил запрос в друзья
-  def who_friend_request_me(user_id) do
-    with %User{id: ^user_id} = user <- Repo.get(User, user_id) do
+  def check_auth(_), do: {:error, "Login or password do not match"}
+
+  # удаляем юзера
+  # TODO: если удаляем юзера, то нужно удалить дружбу, посты, картинки, без этого ошибка ассоциации
+  def delete_user(%{login: login, password: password}) do
+    with  user when not is_nil(user) <- Repo.get_by(User, login: login, password: password),
+          {:ok, user}                <- Repo.delete(user) do
       user
-      |> Repo.preload(:who_request_me)
     else
-      nil -> {:error, "User id #{user_id} not found"}
+      _ -> {:error, "User not deleted"}
     end
   end
 
-  # Принимаем запрос в друзья и добавляем строку об ответной дружбе за одну транзакцию с проверкой
-  def accept_friend_request(user_id, friend_id) when user_id != friend_id do
-    with %User{id: ^user_id} <- Repo.get(User, user_id),
-    %User{id: ^friend_id} <- Repo.get(User, friend_id),
-    {:ok, _} <- add_friend(user_id, friend_id) do
-      {:ok}
-    else
-      nil -> {:error, "User id #{user_id} or friend id #{friend_id} not found"}
-      {:error, _} -> {:error, "Can not add friendship"}
-    end
-  end
+  def delete_user(_), do: {:error, "User not deleted"}
 
-  defp add_friend(user_id, friend_id) do
-    Repo.transaction(fn ->
-      User.Friendship
-      |> Ecto.Query.where(user_id: ^user_id, friend_id: ^friend_id, status: "request")
-      |> Repo.one!()
-      |> Ecto.Changeset.change(status: "friend") # |> IO.inspect()
-      |> Repo.update!()
-
-      %User{id: friend_id}
-      |> Ecto.build_assoc(:request_users, friend_id: user_id, status: "friend")
-      |> Repo.insert!()
-    end)
-  end
-
-  # Отклоняем запрос в друзья и удалаем запрос из базы дружбы
-  def reject_frend_request(user_id, friend_id) when user_id != friend_id do
-    with %User{id: ^user_id} <- Repo.get(User, user_id),
-    %User{id: ^friend_id} <- Repo.get(User, friend_id) do
-      Ecto.Query.from(u in User.Friendship, where: [user_id: ^user_id, friend_id: ^friend_id, status: "request"])
-      |> Repo.delete_all()
-    else
-      nil -> {:error, "User id #{user_id} or friend id #{friend_id} not found"}
-    end
-  end
-
-  # Проверяем кто наши друзья
-  def who_my_friends(user_id) do
-    with %User{id: ^user_id} = user <- Repo.get(User, user_id) do
+  # изменяем логин или пароль юзера
+  def change_login_pass(%{origin_login: origin_login, origin_password: origin_password} = params) do
+    with  user when not is_nil(user)       <- Repo.get_by(User, login: origin_login, password: origin_password),
+          %{valid?: true} = changeset_user <- User.changeset(user, params),
+          {:ok, user}                      <- Repo.update(changeset_user) do
       user
-      |> Repo.preload(:my_friends)
     else
-      nil -> {:error, "User id #{user_id} not found"}
+      _ -> {:error, "Can not update user"}
     end
   end
 
-  # Удаляем из друзей друг друга за одну транзакцию
-  def delete_from_friends(user_id, friend_id) when user_id != friend_id do
-    with %User{id: ^user_id} <- Repo.get(User, user_id),
-    %User{id: ^friend_id} <- Repo.get(User, friend_id) do
-      Repo.transaction(fn ->
-        Ecto.Query.from(u in User.Friendship, where: [user_id: ^user_id, friend_id: ^friend_id, status: "friend"],
-        or_where: [user_id: ^friend_id, friend_id: ^user_id, status: "friend"])
-        |> Repo.delete_all()
-      end)
-    else
-      nil -> {:error, "User id #{user_id} or friend id #{friend_id} not found"}
-    end
-  end
+  def change_login_pass(_), do: {:error, "Can not update user"}
 
-  # Просмотр кому я отправил запрос на добавление в друзья
-  def my_requests(user_id) do
-    with %User{id: ^user_id} <- Repo.get(User, user_id) do
-      User
-      |> Repo.get(user_id)
-      |> Repo.preload(:request_users)
+  # Ищем юзера по параметрам
+  def search_user(%{} = params) do
+    with params_list when params_list != [] <- Map.to_list(params) do
+      Ecto.Query.where(User, ^params_list) |> Repo.all()
     else
-      nil -> {:error, "User id #{user_id} not found"}
+      _ -> {:error, "User not found"}
     end
   end
 end
-
-# TODO: 1) сделать отмену запроса со стороны юзера который отправлял запрос. ЭТО РЕАЛИЗОВАНО В ОТКЛОНЕНИИ ЗАПРОСА.
-# TODO: 2) просмотр кому я отправил запрос на добавление в друзья. СДЕЛАНО.
-
-
-  # # Делаем запрос на добавление в друзья с проверкой на ранее добавленный запрос
-  # def send_friend_request(user_id, friend_id) when user_id != friend_id do
-  #   with %User{id: ^user_id} <- Repo.get(User, user_id),
-  #   %User{id: ^friend_id} <- Repo.get(User, friend_id) do
-
-  #     if Repo.get_by(User.Friendship, [user_id: friend_id, friend_id: user_id, status: "request"]) do
-  #       {:error, "You have already sent a request"}
-  #     else
-  #       friend_request(user_id, friend_id)
-  #     end
-
-  #   else
-  #     nil -> {:error, "User id #{user_id} or friend id #{friend_id} not found"}
-  #   end
-  # end
-
-  # defp friend_request(user_id, friend_id) do
-  #   %User{id: user_id}
-  #   |> Ecto.build_assoc(:request_users, friend_id: friend_id)
-  #   |> Repo.insert()
-  # end
