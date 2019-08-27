@@ -7,7 +7,7 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # ищем юзеров по параметрам
-  def search_user(%{} = params, _) do
+  def search_user(%{login: _login, email: _email, name: _name, surname: _surname, age: _age, sex: _sex, city: _city} = params, _) do
     with list_of_users when is_list(list_of_users) <- User.search_user(params) do
       {:ok, list_of_users}
     else
@@ -16,7 +16,7 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # создаём нового юзера
-  def create_user(%{} = params, _) do
+  def create_user(%{login: _login, password: _password, email: _email, name: _name} = params, _) do
     with {:ok, %User{login: login}} <- User.create_user(params) do
       {:ok, %{login: login, message: "User was created"}}
     else
@@ -25,7 +25,7 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # обновляем какие-либо параметры юзера
-  def update_user(%{} = params, _) do
+  def update_user(%{login: _login, password: _password, email: _email, name: _name, surname: _surname, age: _age, sex: _sex, city: _city} = params, _) do
     with {:ok, %User{}} = updated_user <- User.update_user(params) do
       updated_user
     else
@@ -34,7 +34,7 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # проверяем пару логин-пароль юзера
-  def check_auth_user(%{} = params, _) do
+  def check_auth_user(%{login: _login, password: _password} = params, _) do
     with {:ok, %User{}} = good_user <- User.check_auth_user(params) do
       good_user
     else
@@ -43,7 +43,7 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # удаляем юзера по логину и паролю
-  def delete_user(%{} = params, _) do
+  def delete_user(%{login: _login, password: _password} = params, _) do
     with %{} = deleted_user <- User.delete_user(params) do
       {:ok, deleted_user}
     else
@@ -51,7 +51,7 @@ defmodule JotterWeb.Resolvers.Users do
     end
   end
 
-  def change_login_pass(%{} = params, _) do
+  def change_login_pass(%{origin_login: _origin_login, origin_password: _origin_password, login: _login, password: _password} = params, _) do
     with %{} = updated_user <- User.change_login_pass(params) do
       {:ok, updated_user}
     else

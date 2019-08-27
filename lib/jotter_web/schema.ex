@@ -5,7 +5,6 @@ defmodule JotterWeb.Schema do
   alias JotterWeb.Resolvers.Friends
 
   query do
-
     field :get_users, list_of(:user) do
       resolve &Users.get_users/2
     end
@@ -21,6 +20,27 @@ defmodule JotterWeb.Schema do
 
       resolve &Users.search_user/2
     end
+
+    field :who_friend_request_me, list_of(:friends) do
+      arg :login, non_null(:string)
+      arg :password, non_null(:string)
+
+      resolve &Friends.who_friend_request_me/2
+    end
+
+    field :my_friend_requests, list_of(:friends) do
+      arg :login, non_null(:string)
+      arg :password, non_null(:string)
+
+      resolve &Friends.my_friend_requests/2
+    end
+
+    field :who_my_friends, list_of(:friends) do
+      arg :login, non_null(:string)
+      arg :password, non_null(:string)
+
+      resolve &Friends.who_my_friends/2
+    end
   end
 
   mutation do
@@ -30,10 +50,10 @@ defmodule JotterWeb.Schema do
       arg :password, non_null(:string)
       arg :email, non_null(:string)
       arg :name, non_null(:string)
-      arg :surname, non_null(:string)
-      arg :age, non_null(:integer)
-      arg :sex, non_null(:string)
-      arg :city, non_null(:string)
+      arg :surname, :string
+      arg :age, :string
+      arg :sex, :string
+      arg :city, :string
 
       resolve &Users.create_user/2
     end
@@ -47,7 +67,7 @@ defmodule JotterWeb.Schema do
     end
 
     field :update_user, :user do
-      arg :id, :integer
+      # arg :id, :integer
       arg :login, non_null(:string)
       arg :password, non_null(:string)
       arg :email, :string
@@ -76,17 +96,53 @@ defmodule JotterWeb.Schema do
       resolve &Users.check_auth_user/2
     end
 
-    field :send_friend_request, :user do
-      arg :user_login, non_null(:string)
-      arg :user_password, non_null(:string)
+    field :send_friend_request, :friendship do
+      arg :login, non_null(:string)
+      arg :password, non_null(:string)
       arg :friend_login, non_null(:string)
 
       resolve &Friends.send_friend_request/2
     end
+
+    field :accept_friend_request, :friendship do
+      arg :login, non_null(:string)
+      arg :friend_login, non_null(:string)
+      arg :friend_password, non_null(:string)
+
+      resolve &Friends.accept_friend_request/2
+    end
+
+    field :reject_friend_request, :friendship do
+      arg :login, non_null(:string)
+      arg :friend_login, non_null(:string)
+      arg :friend_password, non_null(:string)
+
+      resolve &Friends.reject_friend_request/2
+    end
+
+    field :delete_from_friends, :friendship do
+      arg :login, non_null(:string)
+      arg :password, non_null(:string)
+      arg :friend_login, non_null(:string)
+
+      resolve &Friends.delete_from_friends/2
+    end
+  end
+
+  object :friendship do
+    field :login, :string
+    field :friend_login, :string
+    field :message, :string
+  end
+
+  object :friends do
+    field :login, :string
+    field :name, :string
+    field :surname, :string
   end
 
   object :user do
-    field :id, :id
+    # field :id, :id
     field :login, :string
     field :password, :string
     field :email, :string
