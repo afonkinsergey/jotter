@@ -1,6 +1,8 @@
 defmodule JotterWeb.Schema do
   use Absinthe.Schema
 
+  import_types(JotterWeb.Schema.Types)
+
   alias JotterWeb.Resolvers.Users
   alias JotterWeb.Resolvers.Friends
 
