@@ -7,8 +7,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # ищем юзеров по параметрам
-  # params могут быть %{login: _login, email: _email, name: _name, surname: _surname, age: _age, sex: _sex, city: _city}
-  def search_user(params, _) do
+  # input могут быть один или более: login:, email:, name:, surname:, age:, sex:, city:
+  def search_user(%{input: params}, _) do
     with {:ok, user_list} <- User.search_user(params) do
       {:ok, user_list}
     else
@@ -17,7 +17,7 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # создаём нового юзера
-  # login: _login, password: _password, email: _email, name: _name
+  # input обязятельные поля: login:, password:, email:, name:
   def create_user(%{input: params}, _) do
     with {:ok, %User{login: login}} <- User.create_user(params) do
       {:ok, %{login: login, message: "User was created"}}

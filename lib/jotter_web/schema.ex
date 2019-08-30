@@ -15,13 +15,7 @@ defmodule JotterWeb.Schema do
 
     @desc "Search user by one or more fields"
     field :search_user, list_of(:user_type) do
-      arg :login, :string
-      arg :email, :string
-      arg :name, :string
-      arg :surname, :string
-      arg :age, :integer
-      arg :sex, :string
-      arg :city, :string
+      arg :input, :user_search_input_type
 
       resolve &Users.search_user/2
     end
@@ -53,15 +47,6 @@ defmodule JotterWeb.Schema do
     @desc "Create new user"
     field :create_user, type: :user_answer do
       arg :input, non_null(:user_input_type)
-      # arg :id, non_null(:id)
-      # arg :login, non_null(:string)
-      # arg :password, non_null(:string)
-      # arg :email, non_null(:string)
-      # arg :name, non_null(:string)
-      # arg :surname, :string
-      # arg :age, :string
-      # arg :sex, :string
-      # arg :city, :string
 
       resolve &Users.create_user/2
     end

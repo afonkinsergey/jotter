@@ -28,4 +28,14 @@ defmodule JotterWeb.Schema.Types.UserType do
     field :sex, :string
     field :city, :string
   end
+
+  input_object :user_search_input_type do
+    field :login, :string
+    field :email, :string
+    field :name, :string
+    field :surname, :string
+    field :age, :integer
+    field :sex, :string
+    field :city, :string
+  end
 end
