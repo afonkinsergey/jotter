@@ -27,8 +27,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # обновляем какие-либо параметры юзера
-  # обновлять можем %{email: _email, name: _name, surname: _surname, age: _age, sex: _sex, city: _city}
-  def update_user(%{login: _login, password: _password} = params, _) do
+  # input обязательно login:, password:, обновлять можем email:, name:, surname:, age:, sex:, city:
+  def update_user(%{input: params}, _) do
     with {:ok, updated_user} <- User.update_user(params) do
       {:ok, updated_user}
     else
@@ -56,8 +56,9 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # обновляем какие-либо логин или пароль юзера
-  # новые логин и/или пароль %{login: _login, password: _password}
-  def change_login_pass(%{origin_login: _origin_login, origin_password: _origin_password} = params, _) do
+  # input принимает старые логин и пароль: origin_login:, origin_password
+  # новые логин и/или пароль login:, password:
+  def change_login_pass(%{input: params}, _) do
     with {:ok, updated_user} <- User.change_login_pass(params) do
       {:ok, updated_user}
     else

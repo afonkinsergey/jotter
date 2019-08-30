@@ -58,26 +58,16 @@ defmodule JotterWeb.Schema do
       resolve &Users.delete_user/2
     end
 
-    field :update_user, :user do
-      # arg :id, :integer
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
-      arg :email, :string
-      arg :name, :string
-      arg :surname, :string
-      arg :age, :integer
-      arg :sex, :string
-      arg :city, :string
+    @desc "Update user params, except login and pass"
+    field :update_user, type: :user_type do
+      arg :input, non_null(:user_update_input_type)
 
       resolve &Users.update_user/2
     end
 
-    field :change_login_pass, :user do
-      arg :origin_login, non_null(:string)
-      arg :origin_password, non_null(:string)
-      arg :login, :string
-      arg :password, :string
-
+    @desc "Change login and/or password"
+    field :change_login_pass, type: :user_type do
+      arg :input, non_null(:user_change_login_input_type)
       resolve &Users.change_login_pass/2
     end
 
