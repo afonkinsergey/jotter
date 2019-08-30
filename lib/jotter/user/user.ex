@@ -71,9 +71,9 @@ defmodule Jotter.User do
 
   # обновляем какие-либо параметры юзера
   def update_user(%{login: login, password: password} = params) do
-    with  user when not is_nil(user)  <- Repo.get_by(User, login: login, password: password),
-          %{valid?: true} = changeset <- User.changeset(user, params),
-          {:ok, updated_user}         <- Repo.update(changeset) do
+    with  user when not is_nil(user)       <- Repo.get_by(User, login: login, password: password),
+          %{valid?: true} = changeset_user <- User.changeset(user, params),
+          {:ok, updated_user}              <- Repo.update(changeset_user) do
       {:ok, updated_user}
     else
       _ -> {:error, "Can not update user"}
@@ -98,7 +98,7 @@ defmodule Jotter.User do
   def delete_user(%{login: login, password: password}) do
     with  user when not is_nil(user) <- Repo.get_by(User, login: login, password: password),
           {:ok, user}                <- Repo.delete(user) do
-      user
+      {:ok, user}
     else
       _ -> {:error, "User not deleted"}
     end
@@ -110,8 +110,8 @@ defmodule Jotter.User do
   def change_login_pass(%{origin_login: origin_login, origin_password: origin_password} = params) do
     with  user when not is_nil(user)       <- Repo.get_by(User, login: origin_login, password: origin_password),
           %{valid?: true} = changeset_user <- User.changeset(user, params),
-          {:ok, user}                      <- Repo.update(changeset_user) do
-      user
+          {:ok, updated_user}              <- Repo.update(changeset_user) do
+      {:ok, updated_user}
     else
       _ -> {:error, "Can not update user"}
     end
@@ -121,8 +121,9 @@ defmodule Jotter.User do
 
   # Ищем юзера по параметрам
   def search_user(%{} = params) do
-    with params_list when params_list != [] <- Map.to_list(params) do
-      Ecto.Query.where(User, ^params_list) |> Repo.all()
+    with  [_ | _] = params_list <- Map.to_list(params),
+          [_ | _] = user_list         <- Ecto.Query.where(User, ^params_list) |> Repo.all() do
+      {:ok, user_list}
     else
       _ -> {:error, "User not found"}
     end

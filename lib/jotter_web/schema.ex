@@ -129,18 +129,6 @@ defmodule JotterWeb.Schema do
     end
   end
 
-  object :friendship do
-    field :login, :string
-    field :friend_login, :string
-    field :message, :string
-  end
-
-  object :friends do
-    field :login, :string
-    field :name, :string
-    field :surname, :string
-  end
-
   object :user do
     # field :id, :id
     field :login, :string
@@ -156,5 +144,17 @@ defmodule JotterWeb.Schema do
   object :user_answer do
     field :login, :string
     field :message, :string
+  end
+
+  object :friendship do
+    field :login, :string
+    field :friend_login, :string
+    field :message, :string
+  end
+
+  object :friends do
+    field :login, :string
+    field :name, :string
+    field :surname, :string
   end
 end

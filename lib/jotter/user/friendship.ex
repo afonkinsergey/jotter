@@ -34,8 +34,8 @@ defmodule Jotter.User.Friendship do
   def accept_friend_request(%{login: login, friend_login: friend_login, friend_password: friend_password}) when login != friend_login do
     with  user when not is_nil(user)     <- Repo.get_by(User, login: login),
           friend when not is_nil(friend) <- Repo.get_by(User, login: friend_login, password: friend_password),
-          {:ok, accepted}                <- add_friend(user, friend) do
-      {:ok, accepted}
+          {:ok, %Friendship{}}                <- add_friend(user, friend) |> IO.inspect do
+      {:ok, %Friendship{}}
     else
       nil -> {:error, "User #{login} or friend #{friend_login} not found"}
       _   -> {:error, "Friendship is not created"}
@@ -46,13 +46,13 @@ defmodule Jotter.User.Friendship do
 
   defp add_friend(user, friend) do
     Repo.transaction(fn ->
-      User.Friendship
+      Friendship
       |> Query.where(user_id: ^user.id, friend_id: ^friend.id, status: "request")
       |> Repo.one!()
       |> Changeset.change(status: "friend") # |> IO.inspect()
       |> Repo.update!()
 
-      %User{id: friend.id}
+      friend
       |> Ecto.build_assoc(:request_users, friend_id: user.id, status: "friend")
       |> Repo.insert!()
     end)
@@ -65,7 +65,7 @@ defmodule Jotter.User.Friendship do
           {_, nil}                       <-
           Query.from(u in User.Friendship, where: [user_id: ^user.id, friend_id: ^friend.id, status: "request"])
           |> Repo.delete_all() do
-      {:ok}
+      :ok
     else
       nil -> {:error, "User #{login} or friend #{friend_login} not found"}
       _   -> {:error, "Request is not rejected"}
@@ -82,7 +82,7 @@ defmodule Jotter.User.Friendship do
           Query.from(u in User.Friendship, where: [user_id: ^user.id, friend_id: ^friend.id, status: "friend"],
           or_where: [user_id: ^friend.id, friend_id: ^user.id, status: "friend"])
           |> Repo.delete_all() do
-      {:ok}
+      :ok
     else
       nil -> {:error, "User #{login} or friend #{friend_login} not found"}
       _   -> {:error, "Friendship is not canceled"}
@@ -93,11 +93,11 @@ defmodule Jotter.User.Friendship do
 
   # Узнаём кто мне отправил запрос в друзья
   def who_friend_request_me(%{login: login, password: password}) do
-    with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
-      Query.from(
-      u in User,
-      join: f in Friendship, on: [user_id: u.id, friend_id: ^user.id, status: "request"])
-    |> Repo.all()
+    with  user when not is_nil(user) <- Repo.get_by(User, login: login, password: password),
+          [_ | _] = user_list        <-
+          Query.from(u in User, join: f in Friendship, on: [user_id: u.id, friend_id: ^user.id, status: "request"])
+          |> Repo.all() do
+      {:ok, user_list}
     else
       nil -> {:error, "User #{login} not found"}
       _   -> {:error, "You have not friends requests"}
@@ -108,11 +108,11 @@ defmodule Jotter.User.Friendship do
 
   # Просмотр кому я отправил запрос на добавление в друзья
   def my_friend_requests(%{login: login, password: password}) do
-    with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
-      Query.from(
-      u in User,
-      join: f in Friendship, on: [user_id: ^user.id, friend_id: u.id, status: "request"])
-    |> Repo.all()
+    with  user when not is_nil(user) <- Repo.get_by(User, login: login, password: password),
+          [_ | _] = user_list        <-
+          Query.from(u in User, join: f in Friendship, on: [user_id: ^user.id, friend_id: u.id, status: "request"])
+          |> Repo.all() do
+      {:ok, user_list}
     else
       nil -> {:error, "User #{login} not found"}
       _   -> {:error, "You did not send friends requests"}
@@ -121,11 +121,11 @@ defmodule Jotter.User.Friendship do
 
   # Проверяем кто наши друзья
   def who_my_friends(%{login: login, password: password}) do
-    with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
-      Query.from(
-      u in User,
-      join: f in Friendship, on: [user_id: ^user.id, friend_id: u.id, status: "friend"])
-    |> Repo.all()
+    with  user when not is_nil(user) <- Repo.get_by(User, login: login, password: password),
+          [_ | _] = user_list        <-
+          Query.from(u in User, join: f in Friendship, on: [user_id: ^user.id, friend_id: u.id, status: "friend"])
+          |> Repo.all() do
+      {:ok, user_list}
     else
       nil -> {:error, "User #{login} not found"}
       _   -> {:error, "You have not a friends"}
