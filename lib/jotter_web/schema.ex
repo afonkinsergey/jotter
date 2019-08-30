@@ -80,31 +80,28 @@ defmodule JotterWeb.Schema do
 
     @desc "Send friend request from user to potential friend"
     field :send_friend_request, type: :friendship_type do
-      arg :input, non_null(:friendship_request_input_type)
+      arg :input, non_null(:friendship_request_delete_input_type)
 
       resolve &Friends.send_friend_request/2
     end
 
-    field :accept_friend_request, :friendship do
-      arg :login, non_null(:string)
-      arg :friend_login, non_null(:string)
-      arg :friend_password, non_null(:string)
+    @desc "Accept request from user to friend"
+    field :accept_friend_request, type: :friendship_type do
+      arg :input, non_null(:friendship_accept_reject_request_input_type)
 
       resolve &Friends.accept_friend_request/2
     end
 
-    field :reject_friend_request, :friendship do
-      arg :login, non_null(:string)
-      arg :friend_login, non_null(:string)
-      arg :friend_password, non_null(:string)
+    @desc "Reject friendship request from friend to user"
+    field :reject_friend_request, type: :friendship_type do
+      arg :input, non_null(:friendship_accept_reject_request_input_type)
 
       resolve &Friends.reject_friend_request/2
     end
 
-    field :delete_from_friends, :friendship do
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
-      arg :friend_login, non_null(:string)
+    @desc "Delete freindship pair"
+    field :delete_from_friends, type: :friendship_type do
+      arg :input, non_null(:friendship_request_delete_input_type)
 
       resolve &Friends.delete_from_friends/2
     end
