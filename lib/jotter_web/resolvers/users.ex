@@ -17,7 +17,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # создаём нового юзера
-  def create_user(%{login: _login, password: _password, email: _email, name: _name} = params, _) do
+  # login: _login, password: _password, email: _email, name: _name
+  def create_user(%{input: params}, _) do
     with {:ok, %User{login: login}} <- User.create_user(params) do
       {:ok, %{login: login, message: "User was created"}}
     else
