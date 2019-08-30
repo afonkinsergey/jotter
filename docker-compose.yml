@@ -5,16 +5,9 @@ services:
     volumes:
       - ./db_data:/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       PGDATA: /data
-      POSTGRES_DB: backend_db
+      POSTGRES_DB: jotter_dev
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      
-  db_nosql_redis:
-    image: redis:alpine
-    volumes:
-      - ./db_data:/redis
-    ports:
-      - "6380:6379"

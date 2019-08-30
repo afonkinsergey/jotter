@@ -1,16 +1,30 @@
-import Config
+# This file is responsible for configuring your application
+# and its dependencies with the aid of the Mix.Config module.
+#
+# This configuration file is loaded before any dependency and
+# is restricted to this project.
+
+# General application configuration
+use Mix.Config
 
 config :jotter,
-  greeting: "Hello"
+  ecto_repos: [Jotter.Repo]
 
-# так как у нас был файл config ещё до создания ecto, то в него нужно добавить
-# такой конфиг, если бы этого файла ранее не было, то конфиг сам бы создался
-config :jotter, Jotter.Repo,
-  database: "backend_db",
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  port: 5433
+# Configures the endpoint
+config :jotter, JotterWeb.Endpoint,
+  url: [host: "localhost"],
+  secret_key_base: "7cvVPruf7TCM79oDt+15bWoUnDox/Wbwa6gfeseBfGSS+E1v6EO6mkBpFFgJPjXH",
+  render_errors: [view: JotterWeb.ErrorView, accepts: ~w(json)],
+  pubsub: [name: Jotter.PubSub, adapter: Phoenix.PubSub.PG2]
 
-# так же указываем что у ecto есть репозиторий
-config :jotter, ecto_repos: [Jotter.Repo]
+# Configures Elixir's Logger
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id]
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{Mix.env()}.exs"

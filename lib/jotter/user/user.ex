@@ -1,7 +1,10 @@
 defmodule Jotter.User do
   use Ecto.Schema
+
   require Ecto.Query # позовём эту штуку чтобы можно было выполнять её макросы
+
   alias Ecto.Changeset
+  alias Jotter.{Repo, User}
 
   schema "users" do
     field :login, :string
@@ -14,10 +17,13 @@ defmodule Jotter.User do
     field :city, :string
 
     # как бы ссылка к .Avatar где у нас есть belongs_to
-    has_one :avatar, Jotter.User.Avatar
-    has_many :posts, Jotter.User.Post
-    has_many :pictures, Jotter.User.Picture
-    many_to_many :users, Jotter.User, join_through: "users_friends"
+    has_one :avatar, User.Avatar
+    has_many :posts, User.Post
+    has_many :pictures, User.Picture
+    # has_many :users_friendship, User.Friendship #, join_keys: [user_id: :id, friend_id: :id]
+    has_many :request_users, User.Friendship, foreign_key: :user_id, where: [status: "request"]
+    has_many :who_request_me, User.Friendship, foreign_key: :friend_id, where: [status: "request"]
+    has_many :my_friends, User.Friendship, foreign_key: :user_id, where: [status: "friend"]
   end
 
   # ниже специальная функция, которая делает проверку перед тем как передать запись в бд
@@ -33,6 +39,7 @@ defmodule Jotter.User do
       :sex,
       :city
       ])
+      # можно так записать (params, ~w[login password .....]a)
 
     # определяем обязательное заполнение полей
     |> Changeset.validate_required([:login, :password, :email, :name, :surname])
@@ -51,39 +58,74 @@ defmodule Jotter.User do
     |> Changeset.unique_constraint(:login)
   end
 
-
-  # сверяем переданную пару логин-пароль
-  def check_auth(login, password) do
-    with %Jotter.User{password: ^password} <- Jotter.Repo.get_by(Jotter.User, login: login) do
-      {:ok}
+  # создаём нового юзера
+  def create_user(%{} = params) do
+    with {:ok, _} = new_user <- %User{} |> User.changeset(params) |> Repo.insert() do
+      new_user
     else
-      _ -> {:error, "login or password do not match"}
+      _ -> {:error, "Can not create user"}
     end
   end
 
-  # запрашиваем первую запись из базы
-  def get_first_record do
-    Jotter.Repo.one(Ecto.Query.from u in __MODULE__, order_by: [asc: u.id], limit: 1)
+  def create_user(_), do: {:error, "Can not create user"}
+
+  # обновляем какие-либо параметры юзера
+  def update_user(%{login: login, password: password} = params) do
+    with  user when not is_nil(user)       <- Repo.get_by(User, login: login, password: password),
+          %{valid?: true} = changeset_user <- User.changeset(user, params),
+          {:ok, updated_user}              <- Repo.update(changeset_user) do
+      {:ok, updated_user}
+    else
+      _ -> {:error, "Can not update user"}
+    end
   end
 
-  # для последней записи, как обычно записывается (не развёрнуто)
-  def get_last_record do
-    __MODULE__ # зовём модуль
-    |> Ecto.Query.last() # последняя запись
-    |> Jotter.Repo.one() # обращение к репе
+  def update_user(_), do: {:error, "Can not update user"}
+
+  # сверяем переданную пару логин-пароль
+  def check_auth_user(%{login: login, password: password}) do
+    with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
+      user
+    else
+      _ -> {:error, "Login or password do not match"}
+    end
   end
 
-  # def send_friend_request(sender, receiver) do
-  #   # нужно сделать проверку не только sender, но и receiver, но как?
-  #   with %Jotter.User{id: ^sender} <- Jotter.Repo.get_by(Jotter.User, id: sender)
-  #   && %Jotter.User{id: ^receiver} <- Jotter.Repo.get_by(Jotter.User, id: receiver) do
-  #     %User{id: user_id}
-  #   else
-  #     :nil -> {:error, "User id not found"}
-  #   end
-  # end
+  def check_auth(_), do: {:error, "Login or password do not match"}
 
-  # def accept_friend_request do
+  # удаляем юзера
+  # TODO: если удаляем юзера, то нужно удалить дружбу, посты, картинки, без этого ошибка ассоциации
+  def delete_user(%{login: login, password: password}) do
+    with  user when not is_nil(user) <- Repo.get_by(User, login: login, password: password),
+          {:ok, user}                <- Repo.delete(user) do
+      {:ok, user}
+    else
+      _ -> {:error, "User not deleted"}
+    end
+  end
 
-  # end
+  def delete_user(_), do: {:error, "User not deleted"}
+
+  # изменяем логин или пароль юзера
+  def change_login_pass(%{origin_login: origin_login, origin_password: origin_password} = params) do
+    with  user when not is_nil(user)       <- Repo.get_by(User, login: origin_login, password: origin_password),
+          %{valid?: true} = changeset_user <- User.changeset(user, params),
+          {:ok, updated_user}              <- Repo.update(changeset_user) do
+      {:ok, updated_user}
+    else
+      _ -> {:error, "Can not update user"}
+    end
+  end
+
+  def change_login_pass(_), do: {:error, "Can not update user"}
+
+  # Ищем юзера по параметрам
+  def search_user(%{} = params) do
+    with  [_ | _] = params_list <- Map.to_list(params),
+          [_ | _] = user_list         <- Ecto.Query.where(User, ^params_list) |> Repo.all() do
+      {:ok, user_list}
+    else
+      _ -> {:error, "User not found"}
+    end
+  end
 end
