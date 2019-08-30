@@ -46,7 +46,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # удаляем юзера по логину и паролю
-  def delete_user(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def delete_user(%{input: params}, _) do
     with {:ok, deleted_user} <- User.delete_user(params) do
       {:ok, deleted_user}
     else

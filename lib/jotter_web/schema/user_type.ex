@@ -38,4 +38,9 @@ defmodule JotterWeb.Schema.Types.UserType do
     field :sex, :string
     field :city, :string
   end
+
+  input_object :user_delete_input_type do
+    field :login, :string
+    field :password, :string
+  end
 end

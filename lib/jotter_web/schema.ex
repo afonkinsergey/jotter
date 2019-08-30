@@ -51,10 +51,9 @@ defmodule JotterWeb.Schema do
       resolve &Users.create_user/2
     end
 
-    field :delete_user, :user do
-      # arg :id, :integer
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
+    @desc "Delete user by login and pass"
+    field :delete_user, type: :user_type do
+      arg :input, non_null(:user_delete_input_type)
 
       resolve &Users.delete_user/2
     end
@@ -132,11 +131,6 @@ defmodule JotterWeb.Schema do
     field :age, :integer
     field :sex, :string
     field :city, :string
-  end
-
-  object :user_answer1 do
-    field :login, :string
-    field :message, :string
   end
 
   object :friendship do
