@@ -71,9 +71,9 @@ defmodule JotterWeb.Schema do
       resolve &Users.change_login_pass/2
     end
 
-    field :check_auth_user, :user do
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
+    @desc "Simple check valid user"
+    field :check_auth_user, type: :user_type do
+      arg :input, non_null(:user_check_auth_input_type)
 
       resolve &Users.check_auth_user/2
     end

@@ -37,7 +37,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # проверяем пару логин-пароль юзера
-  def check_auth_user(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def check_auth_user(%{input: params}, _) do
     with {:ok, valid_user} <- User.check_auth_user(params) do
       {:ok, valid_user}
     else

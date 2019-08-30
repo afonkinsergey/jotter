@@ -90,7 +90,7 @@ defmodule Jotter.User do
   # сверяем переданную пару логин-пароль
   def check_auth_user(%{login: login, password: password}) do
     with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
-      user
+      {:ok, user}
     else
       _ -> {:error, "Login or password do not match"}
     end

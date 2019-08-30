@@ -61,4 +61,9 @@ defmodule JotterWeb.Schema.Types.UserType do
     field :login, :string
     field :password, :string
   end
+
+  input_object :user_check_auth_input_type do
+    field :login, non_null(:string)
+    field :password, non_null(:string)
+  end
 end
