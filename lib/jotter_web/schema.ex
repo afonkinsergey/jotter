@@ -78,10 +78,9 @@ defmodule JotterWeb.Schema do
       resolve &Users.check_auth_user/2
     end
 
-    field :send_friend_request, :friendship do
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
-      arg :friend_login, non_null(:string)
+    @desc "Send friend request from user to potential friend"
+    field :send_friend_request, type: :friendship_type do
+      arg :input, non_null(:friendship_request_input_type)
 
       resolve &Friends.send_friend_request/2
     end

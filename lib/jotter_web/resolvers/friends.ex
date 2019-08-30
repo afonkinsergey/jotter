@@ -2,9 +2,10 @@ defmodule JotterWeb.Resolvers.Friends do
   alias Jotter.{User.Friendship}
 
   # Делаем запрос на добавление в друзья
-  def send_friend_request(%{login: login, password: _password, friend_login: friend_login} = params, _) do
+  # input принимает login:, password:, friend_login:
+  def send_friend_request(%{input: params}, _) do
     with {:ok, %Friendship{}} <- Friendship.send_friend_request(params) do
-      {:ok, %{login: login, friend_login: friend_login, message: "Friendship request from #{login} to #{friend_login} has been sent"}}
+      {:ok, %{login: params.login, friend_login: params.friend_login, message: "Friendship request from #{params.login} to #{params.friend_login} has been sent"}}
     else
       _ -> {:error, "Friendship is not created"}
     end

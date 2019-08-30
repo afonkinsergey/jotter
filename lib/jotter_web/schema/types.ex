@@ -4,4 +4,5 @@ defmodule JotterWeb.Schema.Types do
   alias JotterWeb.Schema.Types
 
   import_types(Types.UserType)
+  import_types(Types.FriendshipType)
 end
