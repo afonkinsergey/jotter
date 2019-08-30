@@ -1,9 +1,9 @@
 defmodule JotterWeb.Resolvers.Users do
-  alias Jotter.{User, Repo}
+  alias Jotter.User
 
   # получаем список всех юзеров
   def get_users(_, _) do
-    {:ok, User |> Repo.all()}
+    {:ok, User.all_users()}
   end
 
   # ищем юзеров по параметрам

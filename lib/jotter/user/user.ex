@@ -69,6 +69,11 @@ defmodule Jotter.User do
 
   def create_user(_), do: {:error, "Can not create user"}
 
+  # Список всех юзеров
+  def all_users do
+    Repo.all(User)
+  end
+
   # обновляем какие-либо параметры юзера
   def update_user(%{login: login, password: password} = params) do
     with  user when not is_nil(user)       <- Repo.get_by(User, login: login, password: password),

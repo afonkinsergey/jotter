@@ -7,7 +7,10 @@ defmodule JotterWeb.Schema do
   alias JotterWeb.Resolvers.Friends
 
   query do
-    field :get_users, list_of(:user) do
+
+    @desc "Get a list of all users"
+
+    field :get_users, list_of(:user_type) do
       resolve &Users.get_users/2
     end
 
