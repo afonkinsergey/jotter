@@ -106,28 +106,4 @@ defmodule JotterWeb.Schema do
       resolve &Friends.delete_from_friends/2
     end
   end
-
-  object :user do
-    # field :id, :id
-    field :login, :string
-    field :password, :string
-    field :email, :string
-    field :name, :string
-    field :surname, :string
-    field :age, :integer
-    field :sex, :string
-    field :city, :string
-  end
-
-  object :friendship do
-    field :login, :string
-    field :friend_login, :string
-    field :message, :string
-  end
-
-  object :friends do
-    field :login, :string
-    field :name, :string
-    field :surname, :string
-  end
 end
