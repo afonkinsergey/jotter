@@ -20,23 +20,23 @@ defmodule JotterWeb.Schema do
       resolve &Users.search_user/2
     end
 
-    field :who_friend_request_me, list_of(:friends) do
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
+    @desc "Who send friend request to me"
+    field :who_friend_request_me, list_of(:user_type) do
+      arg :input, non_null(:friendship_friends_input_type)
 
       resolve &Friends.who_friend_request_me/2
     end
 
-    field :my_friend_requests, list_of(:friends) do
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
+    @desc "To whom did I send a friend request"
+    field :my_friend_requests, list_of(:user_type) do
+      arg :input, non_null(:friendship_friends_input_type)
 
       resolve &Friends.my_friend_requests/2
     end
 
-    field :who_my_friends, list_of(:friends) do
-      arg :login, non_null(:string)
-      arg :password, non_null(:string)
+    @desc "List of my freinds"
+    field :who_my_friends, list_of(:user_type) do
+      arg :input, non_null(:friendship_friends_input_type)
 
       resolve &Friends.who_my_friends/2
     end

@@ -44,7 +44,8 @@ defmodule JotterWeb.Resolvers.Friends do
   end
 
   # Узнаём кто мне отправил запрос в друзья
-  def who_friend_request_me(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def who_friend_request_me(%{input: params}, _) do
     with {:ok, user_list}  <- Friendship.who_friend_request_me(params) do
       {:ok, user_list}
     else
@@ -53,7 +54,8 @@ defmodule JotterWeb.Resolvers.Friends do
   end
 
   # Просмотр кому я отправил запрос на добавление в друзья
-  def my_friend_requests(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def my_friend_requests(%{input: params}, _) do
     with {:ok, user_list} <- Friendship.my_friend_requests(params) do
       {:ok, user_list}
     else
@@ -62,7 +64,8 @@ defmodule JotterWeb.Resolvers.Friends do
   end
 
   # Проверяем кто наши друзья
-  def who_my_friends(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def who_my_friends(%{input: params}, _) do
     with {:ok, user_list} <- Friendship.who_my_friends(params) do
       {:ok, user_list}
     else

@@ -18,4 +18,9 @@ defmodule JotterWeb.Schema.Types.FriendshipType do
     field :friend_login, non_null(:string)
     field :friend_password, non_null(:string)
   end
+
+  input_object :friendship_friends_input_type do
+    field :login, non_null(:string)
+    field :password, non_null(:string)
+  end
 end
