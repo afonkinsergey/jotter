@@ -3,8 +3,7 @@ defmodule JotterWeb.Schema do
 
   import_types(JotterWeb.Schema.Types)
 
-  alias JotterWeb.Resolvers.Users
-  alias JotterWeb.Resolvers.Friends
+  alias JotterWeb.Resolvers.{Users, Friends, Sessions}
 
   query do
 
@@ -43,6 +42,13 @@ defmodule JotterWeb.Schema do
   end
 
   mutation do
+
+    @desc "Login a user and return a JWT token"
+    field :login_user, type: :session_type do
+      arg :input, non_null(:session_input_type)
+
+      resolve &Sessions.login_user/2
+    end
 
     @desc "Create new user"
     field :create_user, type: :user_answer do
