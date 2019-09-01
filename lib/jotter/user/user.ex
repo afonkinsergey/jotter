@@ -58,6 +58,8 @@ defmodule Jotter.User do
     |> Changeset.unique_constraint(:login)
   end
 
+  def get_user!(id), do: Repo.get!(User, id)
+
   # создаём нового юзера
   def create_user(%{} = params) do
     with {:ok, _} = new_user <- %User{} |> User.changeset(params) |> Repo.insert() do
