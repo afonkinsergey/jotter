@@ -5,4 +5,5 @@ defmodule JotterWeb.Schema.Types do
 
   import_types(Types.UserType)
   import_types(Types.FriendshipType)
+  import_types(Types.SessionType)
 end
