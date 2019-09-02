@@ -98,7 +98,7 @@ defmodule Jotter.User do
     end
   end
 
-  def check_auth(_), do: {:error, "Login or password do not match"}
+  def check_auth_user(_), do: {:error, "Login or password do not match"}
 
   # удаляем юзера
   # TODO: если удаляем юзера, то нужно удалить дружбу, посты, картинки, без этого ошибка ассоциации
