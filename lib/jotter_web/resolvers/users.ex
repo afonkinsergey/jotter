@@ -1,14 +1,20 @@
 defmodule JotterWeb.Resolvers.Users do
-  alias Jotter.{User, Repo}
+  alias Jotter.User
 
   # получаем список всех юзеров
-  def get_users(_, _) do
-    {:ok, User |> Repo.all()}
+  # сейчас это просто проверка-заглушка, будет реализовано через Middleware
+  def get_users(_, %{context: context}) do
+    with %{current_user: _current_user} <- context do
+      IO.inspect(context)
+      {:ok, User.all_users()}
+    else
+      _ -> {:error, "You are not logged"}
+    end
   end
 
   # ищем юзеров по параметрам
-  # params могут быть %{login: _login, email: _email, name: _name, surname: _surname, age: _age, sex: _sex, city: _city}
-  def search_user(params, _) do
+  # input могут быть один или более: login:, email:, name:, surname:, age:, sex:, city:
+  def search_user(%{input: params}, _) do
     with {:ok, user_list} <- User.search_user(params) do
       {:ok, user_list}
     else
@@ -17,7 +23,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # создаём нового юзера
-  def create_user(%{login: _login, password: _password, email: _email, name: _name} = params, _) do
+  # input обязятельные поля: login:, password:, email:, name:
+  def create_user(%{input: params}, _) do
     with {:ok, %User{login: login}} <- User.create_user(params) do
       {:ok, %{login: login, message: "User was created"}}
     else
@@ -26,8 +33,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # обновляем какие-либо параметры юзера
-  # обновлять можем %{email: _email, name: _name, surname: _surname, age: _age, sex: _sex, city: _city}
-  def update_user(%{login: _login, password: _password} = params, _) do
+  # input обязательно login:, password:, обновлять можем email:, name:, surname:, age:, sex:, city:
+  def update_user(%{input: params}, _) do
     with {:ok, updated_user} <- User.update_user(params) do
       {:ok, updated_user}
     else
@@ -36,7 +43,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # проверяем пару логин-пароль юзера
-  def check_auth_user(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def check_auth_user(%{input: params}, _) do
     with {:ok, valid_user} <- User.check_auth_user(params) do
       {:ok, valid_user}
     else
@@ -45,7 +53,8 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # удаляем юзера по логину и паролю
-  def delete_user(%{login: _login, password: _password} = params, _) do
+  # input принимает login:, password:
+  def delete_user(%{input: params}, _) do
     with {:ok, deleted_user} <- User.delete_user(params) do
       {:ok, deleted_user}
     else
@@ -54,8 +63,9 @@ defmodule JotterWeb.Resolvers.Users do
   end
 
   # обновляем какие-либо логин или пароль юзера
-  # новые логин и/или пароль %{login: _login, password: _password}
-  def change_login_pass(%{origin_login: _origin_login, origin_password: _origin_password} = params, _) do
+  # input принимает старые логин и пароль: origin_login:, origin_password
+  # новые логин и/или пароль login:, password:
+  def change_login_pass(%{input: params}, _) do
     with {:ok, updated_user} <- User.change_login_pass(params) do
       {:ok, updated_user}
     else

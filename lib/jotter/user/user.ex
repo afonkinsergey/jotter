@@ -58,6 +58,8 @@ defmodule Jotter.User do
     |> Changeset.unique_constraint(:login)
   end
 
+  def get_user!(id), do: Repo.get!(User, id)
+
   # создаём нового юзера
   def create_user(%{} = params) do
     with {:ok, _} = new_user <- %User{} |> User.changeset(params) |> Repo.insert() do
@@ -68,6 +70,11 @@ defmodule Jotter.User do
   end
 
   def create_user(_), do: {:error, "Can not create user"}
+
+  # Список всех юзеров
+  def all_users do
+    Repo.all(User)
+  end
 
   # обновляем какие-либо параметры юзера
   def update_user(%{login: login, password: password} = params) do
@@ -85,13 +92,13 @@ defmodule Jotter.User do
   # сверяем переданную пару логин-пароль
   def check_auth_user(%{login: login, password: password}) do
     with user when not is_nil(user) <- Repo.get_by(User, login: login, password: password) do
-      user
+      {:ok, user}
     else
       _ -> {:error, "Login or password do not match"}
     end
   end
 
-  def check_auth(_), do: {:error, "Login or password do not match"}
+  def check_auth_user(_), do: {:error, "Login or password do not match"}
 
   # удаляем юзера
   # TODO: если удаляем юзера, то нужно удалить дружбу, посты, картинки, без этого ошибка ассоциации

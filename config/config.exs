@@ -25,6 +25,12 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Guardian config details
+# Secret key. You can use `mix guardian.gen.secret` to get one
+config  :jotter, Jotter.Guardian,
+  issuer: "jotter",
+  secret_key: "MYN0QD1vH3Ml+H/0GXTVyrMRDoJVfr+MtpFSnWsgFQGrOpRzzou44kJJEMTCYrpV"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
