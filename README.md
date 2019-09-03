@@ -1,19 +1,12 @@
 # Jotter
 
-To start your Phoenix server:
+Установлены Phoenix, Absinthe, Guardian (for encode-decode JWT tokens).
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server`
+Работает создание юзера по условиям ТЗ, обновление инфы юзера, создание дружбы (запрос, принятие, отклонение, удаление, кто друг, список запросов отправленных и полученных), поиск юзеров по разным полям, при авторизации юзера герерация токена.
+Так же есть создание постов, картинок и добавление аватар. Картинки и аватары нужно добавлять через модуль ARC (но его пока не изучил, нашёл туториал как это сделать).
+Сейчас в работе Absinthe.Middleware
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+TODO:
+Сделать лайки для постов (количество и кто поставил).
+Разобраться с модулем ARC для загрузки картинок и аватар пользователя на локальный диск.
+Попробовать сделать чат.
