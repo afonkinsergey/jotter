@@ -1,15 +1,10 @@
 defmodule JotterWeb.Resolvers.Users do
   alias Jotter.User
 
-  # получаем список всех юзеров
-  # сейчас это просто проверка-заглушка, будет реализовано через Middleware
+  # получаем список всех юзеров, проверка Middleware
   def get_users(_, %{context: context}) do
-    with %{current_user: _current_user} <- context do
-      IO.inspect(context)
-      {:ok, User.all_users()}
-    else
-      _ -> {:error, "You are not logged"}
-    end
+    IO.inspect(context)
+    {:ok, User.all_users()}
   end
 
   # ищем юзеров по параметрам
