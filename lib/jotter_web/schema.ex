@@ -4,11 +4,13 @@ defmodule JotterWeb.Schema do
   import_types(JotterWeb.Schema.Types)
 
   alias JotterWeb.Resolvers.{Users, Friends, Sessions}
+  alias JotterWeb.Schema.Middleware
 
   query do
 
-    @desc "Get a list of all users"
+    @desc "Get a list of all users. Access only for logined user."
     field :get_users, list_of(:user_type) do
+      middleware(Middleware.Authorize, :any)
       resolve &Users.get_users/2
     end
 
