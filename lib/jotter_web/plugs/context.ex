@@ -10,6 +10,8 @@ defmodule JotterWeb.Plugs.Context do
     Absinthe.Plug.put_options(conn, context: context)
   end
 
+  # Сотрим через guardian принимаемого из хедера токена
+  # если токен есть возвращаем наполненный структурой юзера контекст
   defp build_context(conn) do
     with  ["Bearer " <> token] <- get_req_header(conn, "authorization"),
           {:ok, claims}        <- Jotter.Guardian.decode_and_verify(token),

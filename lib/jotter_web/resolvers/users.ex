@@ -2,8 +2,7 @@ defmodule JotterWeb.Resolvers.Users do
   alias Jotter.User
 
   # получаем список всех юзеров, проверка Middleware
-  def get_users(_, %{context: context}) do
-    IO.inspect(context)
+  def get_users(_, %{context: _context}) do
     {:ok, User.all_users()}
   end
 
